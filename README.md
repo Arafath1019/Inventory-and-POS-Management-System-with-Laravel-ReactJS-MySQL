@@ -1,0 +1,1 @@
+# Inventory-and-POS-Management-System-with-Laravel-ReactJS-MySQL
