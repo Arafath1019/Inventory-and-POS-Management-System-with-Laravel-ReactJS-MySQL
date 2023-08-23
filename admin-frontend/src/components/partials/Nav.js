@@ -1,11 +1,43 @@
 import React from "react";
 import $ from 'jquery';
 import Logo from "../../assets/img/logo.png";
+import Swal from 'sweetalert2';
+import axios from 'axios';
 
 function Nav() {
     const handleSidebar = () => {
         $('body').toggleClass('sb-sidenav-toggled');
     };
+
+    const handleLogout = () => {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You will be logged out!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, Logout'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          axios.post("http://localhost:8000/api/logout").then(res => {
+            localStorage.removeItem("email");
+            localStorage.removeItem("name");
+            localStorage.removeItem("photo");
+            localStorage.removeItem("phone");
+            localStorage.removeItem("token");
+            window.location.reload();
+          }).catch(errors => {
+            if(errors){
+              Swal.fire({
+                title: "Something went wrong",
+                icon: "error"
+              })
+            }
+          })
+        }
+      })
+    }
 
   return (
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-theme">
@@ -54,9 +86,9 @@ function Nav() {
               <hr class="dropdown-divider" />
             </li>
             <li>
-              <a class="dropdown-item" href="#!">
+              <button onClick={handleLogout} class="dropdown-item">
                 Logout
-              </a>
+              </button>
             </li>
           </ul>
         </li>

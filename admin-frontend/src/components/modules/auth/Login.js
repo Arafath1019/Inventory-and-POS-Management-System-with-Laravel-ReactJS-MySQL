@@ -1,19 +1,39 @@
 import React, { useState } from "react";
-import axios from 'axios';
+import axios from "axios";
 
 function Login() {
   const [input, setInput] = useState({});
+  const [errors, setErrors] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInput = (e) => {
-    setInput((prevState) => ({ ...prevState, [e.target.name]: e.target.value }));
-    console.log(input);
+    setInput((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }));
+    setErrors([]);
   };
 
-  const handleLogin = () =>{
-    axios.post('http://localhost:8000/api/login', input).then(res => {
-        console.log(res.data);
-    })
-  }
+  const handleLogin = () => {
+    setIsLoading(true);
+    axios
+      .post("http://localhost:8000/api/login", input)
+      .then((res) => {
+        localStorage.email = res.data.email;
+        localStorage.name = res.data.name;
+        localStorage.photo = res.data.photo;
+        localStorage.phone = res.data.phone;
+        localStorage.token = res.data.token;
+        window.location.reload();
+        setIsLoading(false);
+      })
+      .catch((errors) => {
+        if (errors.response.status === 422) {
+          setErrors(errors.response.data.errors);
+        }
+        setIsLoading(false);
+      });
+  };
 
   return (
     <div className="container-fluid bg-theme" id="login">
@@ -31,8 +51,11 @@ function Login() {
                   type="text"
                   name="email"
                   value={input.email}
-                  onChange={ handleInput }
+                  onChange={handleInput}
                 />
+                {errors.email && (
+                  <p className="login-error-msg">{errors.email[0]}</p>
+                )}
               </label>
               <label className="w-100 mt-4">
                 <p>Password</p>
@@ -41,11 +64,33 @@ function Login() {
                   type="password"
                   name="password"
                   value={input.password}
-                  onChange={ handleInput }
+                  onChange={handleInput}
                 />
+                {errors.password && (
+                  <p className="login-error-msg">{errors.password[0]}</p>
+                )}
               </label>
               <div className="d-grid mt-4">
-                <button onClick={handleLogin} className="btn btn-outline-warning">Login</button>
+                {!isLoading && (
+                  <button
+                    onClick={handleLogin}
+                    className="btn btn-outline-warning"
+                  >
+                    Login
+                  </button>
+                )}
+                {isLoading && (
+                  <button
+                    onClick={handleLogin}
+                    className="btn btn-outline-warning"
+                  >
+                    <span
+                      class="spinner-border spinner-border-sm mr-2"
+                      aria-hidden="true"
+                    ></span>
+                    Login
+                  </button>
+                )}
               </div>
             </div>
           </div>
